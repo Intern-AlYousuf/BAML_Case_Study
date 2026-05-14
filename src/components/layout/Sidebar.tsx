@@ -39,41 +39,41 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-[220px] flex flex-col bg-[var(--surface-panel)] border-r border-[var(--border-base)] z-[200]">
+    <aside className="fixed inset-y-0 left-0 w-[260px] flex flex-col bg-[var(--surface-panel)] border-r border-[var(--border-subtle)] z-[200]">
 
       {/* ── Brand ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 h-12 px-4 shrink-0 border-b border-[var(--border-base)]">
-        <div className="w-[22px] h-[22px] bg-[var(--accent-primary)] rounded-[2px] flex items-center justify-center shrink-0">
-          <span className="text-[9px] font-black text-black leading-none tracking-tight">B</span>
+      <div className="flex items-center gap-3 h-14 px-5 shrink-0 border-b border-[var(--border-subtle)]">
+        <div className="w-7 h-7 bg-[var(--accent-primary)] rounded-[4px] flex items-center justify-center shrink-0">
+          <span className="text-[11px] font-black text-black leading-none tracking-tight">B</span>
         </div>
-        <div className="flex flex-col leading-none">
-          <span className="text-[11px] font-bold text-[var(--text-primary)] tracking-[0.12em] uppercase">
+        <div className="flex flex-col leading-none gap-[4px]">
+          <span className="text-[12px] font-bold text-[var(--text-primary)] tracking-[0.14em] uppercase">
             BAML
           </span>
-          <span className="text-[9px] text-[var(--text-muted)] tracking-[0.08em] uppercase mt-[3px]">
+          <span className="text-[10.5px] text-[var(--text-muted)] tracking-[0.06em]">
             Risk Intelligence
           </span>
         </div>
       </div>
 
       {/* ── Navigation ─────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto scroll-thin py-3 px-2 space-y-4">
+      <nav className="flex-1 overflow-y-auto scroll-thin py-4 px-3 space-y-5">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
-            <p className="px-2 mb-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-[var(--text-muted)]">
+            <p className="px-2.5 mb-2 text-[10.5px] font-semibold tracking-[0.14em] uppercase text-[var(--text-muted)]">
               {section.label}
             </p>
-            <ul className="space-y-px">
+            <ul className="space-y-0.5">
               {section.items.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <li key={item.href}>
                     <Link href={item.href} className="block">
                       <motion.div
-                        whileHover={{ x: 1 }}
-                        transition={{ duration: 0.1, ease: 'easeOut' }}
+                        whileHover={{ x: 2 }}
+                        transition={{ duration: 0.12, ease: 'easeOut' }}
                         className={cn(
-                          'relative flex items-center gap-2.5 px-2 py-[7px] rounded-[4px] text-[13px] font-medium transition-colors duration-100 group cursor-pointer select-none',
+                          'relative flex items-center gap-3 px-2.5 py-2.5 rounded-[6px] text-[14px] font-medium transition-colors duration-100 group cursor-pointer select-none',
                           isActive
                             ? 'bg-[var(--accent-dim)] text-[var(--accent-primary)]'
                             : 'text-[var(--text-secondary)] hover:bg-[var(--surface-overlay)] hover:text-[var(--text-primary)]'
@@ -84,7 +84,7 @@ export function Sidebar() {
                           {isActive && (
                             <motion.span
                               layoutId="sidebar-pill"
-                              className="absolute left-0 top-[5px] bottom-[5px] w-[2px] bg-[var(--accent-primary)] rounded-full"
+                              className="absolute left-0 top-[6px] bottom-[6px] w-[2.5px] bg-[var(--accent-primary)] rounded-full"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
@@ -95,7 +95,7 @@ export function Sidebar() {
 
                         <item.icon
                           className={cn(
-                            'w-[15px] h-[15px] shrink-0 transition-colors duration-100',
+                            'w-[16px] h-[16px] shrink-0 transition-colors duration-100',
                             isActive
                               ? 'text-[var(--accent-primary)]'
                               : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
@@ -106,7 +106,7 @@ export function Sidebar() {
                         <span className="flex-1 leading-none">{item.label}</span>
 
                         {item.badge && (
-                          <span className="text-[9px] font-bold tracking-[0.1em] text-[var(--accent-primary)] bg-[var(--accent-dim)] px-[5px] py-[2px] rounded-[2px] border border-[rgba(255,230,0,0.18)] leading-none">
+                          <span className="text-[9px] font-bold tracking-[0.1em] text-[var(--accent-primary)] bg-[var(--accent-dim)] px-[5px] py-[2.5px] rounded-[3px] border border-[rgba(255,230,0,0.18)] leading-none">
                             {item.badge}
                           </span>
                         )}
@@ -121,16 +121,16 @@ export function Sidebar() {
       </nav>
 
       {/* ── User footer ────────────────────────────────────────────── */}
-      <div className="shrink-0 border-t border-[var(--border-base)] px-3 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-[3px] bg-[var(--surface-elevated)] border border-[var(--border-base)] flex items-center justify-center shrink-0">
-            <span className="text-[10px] font-bold text-[var(--text-secondary)] leading-none">TA</span>
+      <div className="shrink-0 border-t border-[var(--border-subtle)] px-4 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-[5px] bg-[var(--surface-elevated)] border border-[var(--border-base)] flex items-center justify-center shrink-0">
+            <span className="text-[11px] font-bold text-[var(--text-secondary)] leading-none">TA</span>
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[12px] font-semibold text-[var(--text-primary)] leading-none truncate">
+          <div className="flex flex-col min-w-0 gap-[3px]">
+            <span className="text-[13px] font-semibold text-[var(--text-primary)] leading-none truncate">
               Treasury Analyst
             </span>
-            <span className="text-[10px] text-[var(--text-muted)] leading-none mt-[3px]">
+            <span className="text-[11px] text-[var(--text-muted)] leading-none">
               EY Advisory
             </span>
           </div>

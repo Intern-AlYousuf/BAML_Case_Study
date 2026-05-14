@@ -1,10 +1,18 @@
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import { PanelContainer } from '@/components/ui/PanelContainer';
-import { ArrowUpRight, ArrowDownRight, Minus, TrendingUp, Shield, BarChart3, Clock } from 'lucide-react';
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  TrendingUp,
+  Clock,
+  ExternalLink,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   KPI Stat Card — institutional metric tile
+   KPI Stat Card
+   Prominent metric tile — large value, clear hierarchy, minimal chrome
 ───────────────────────────────────────────────────────────────────────────── */
 interface KPIStat {
   label: string;
@@ -13,9 +21,10 @@ interface KPIStat {
   deltaLabel: string;
   trend: 'positive' | 'negative' | 'neutral';
   unit?: string;
+  unitSuffix?: boolean;
 }
 
-function KPIStatCard({ label, value, delta, deltaLabel, trend, unit }: KPIStat) {
+function KPIStatCard({ label, value, delta, deltaLabel, trend, unit, unitSuffix }: KPIStat) {
   const DeltaIcon =
     trend === 'positive' ? ArrowUpRight :
     trend === 'negative' ? ArrowDownRight :
@@ -26,55 +35,67 @@ function KPIStatCard({ label, value, delta, deltaLabel, trend, unit }: KPIStat) 
     trend === 'negative' ? 'text-[var(--status-negative)]' :
     'text-[var(--text-muted)]';
 
+  const accentLine =
+    trend === 'positive' ? 'bg-[var(--status-positive)]' :
+    trend === 'negative' ? 'bg-[var(--status-negative)]' :
+    'bg-[var(--border-base)]';
+
   return (
-    <PanelContainer className="min-h-[110px]">
-      <div className="flex flex-col justify-between h-full">
-        <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[var(--text-muted)]">
-          {label}
-        </p>
-        <div>
-          <div className="flex items-baseline gap-1 mt-2">
-            {unit && (
-              <span className="font-mono text-[15px] font-medium text-[var(--text-muted)]">{unit}</span>
-            )}
-            <span className="font-mono text-[28px] font-bold text-[var(--text-primary)] leading-none nums-tabular tracking-tight">
-              {value}
-            </span>
-          </div>
-          <div className={cn('flex items-center gap-1 mt-2', deltaColor)}>
-            <DeltaIcon className="w-[13px] h-[13px] shrink-0" strokeWidth={2} />
-            <span className="font-mono text-[11px] font-semibold nums-tabular">{delta}</span>
-            <span className="text-[11px] text-[var(--text-muted)] font-normal">{deltaLabel}</span>
-          </div>
-        </div>
+    <div className="relative flex flex-col bg-[var(--surface-secondary)] rounded-[10px] border border-[var(--border-subtle)] p-5 min-h-[160px] group transition-colors duration-150 hover:bg-[var(--surface-elevated)]">
+      {/* Top accent bar */}
+      <div className={cn('absolute top-0 left-5 right-5 h-[2px] rounded-b-full opacity-60', accentLine)} />
+
+      {/* Label */}
+      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--text-muted)] mb-auto">
+        {label}
+      </p>
+
+      {/* Value */}
+      <div className="flex items-baseline gap-1.5 mt-5 mb-3">
+        {unit && !unitSuffix && (
+          <span className="font-mono text-[19px] font-medium text-[var(--text-secondary)]">{unit}</span>
+        )}
+        <span className="font-mono text-[44px] font-bold text-[var(--text-primary)] leading-none nums-tabular tracking-tight">
+          {value}
+        </span>
+        {unit && unitSuffix && (
+          <span className="font-mono text-[19px] font-medium text-[var(--text-secondary)]">{unit}</span>
+        )}
       </div>
-    </PanelContainer>
+
+      {/* Delta */}
+      <div className={cn('flex items-center gap-1.5', deltaColor)}>
+        <DeltaIcon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
+        <span className="font-mono text-[13px] font-semibold nums-tabular">{delta}</span>
+        <span className="text-[12px] text-[var(--text-muted)] font-normal">{deltaLabel}</span>
+      </div>
+    </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Metric Row — compact label / value pair
+   Metric Row — label / value pair with generous spacing
 ───────────────────────────────────────────────────────────────────────────── */
 function MetricRow({
   label,
   value,
   valueClass,
-  border = true,
+  divider = true,
 }: {
   label: string;
   value: string;
   valueClass?: string;
-  border?: boolean;
+  divider?: boolean;
 }) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between py-[9px]',
-        border && 'border-b border-[var(--border-subtle)] last:border-b-0'
+        'flex items-center justify-between py-3',
+        divider && 'border-b border-[var(--border-subtle)] last:border-b-0'
       )}
     >
-      <span className="text-[12px] text-[var(--text-secondary)]">{label}</span>
-      <span className={cn('font-mono text-[12px] font-medium nums-tabular text-[var(--text-primary)]', valueClass)}>
+      <span className="text-[13px] text-[var(--text-secondary)]">{label}</span>
+      <span className={cn('font-mono text-[13px] font-medium nums-tabular text-[var(--text-primary)]', valueClass)}>
         {value}
       </span>
     </div>
@@ -82,7 +103,7 @@ function MetricRow({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Signal Badge — risk alert row
+   Signal Row — risk alert with severity badge
 ───────────────────────────────────────────────────────────────────────────── */
 type SignalLevel = 'high' | 'medium' | 'low';
 
@@ -99,22 +120,22 @@ function SignalRow({ label, detail, level, time }: {
   };
 
   return (
-    <div className="flex items-start gap-3 py-[9px] border-b border-[var(--border-subtle)] last:border-b-0">
+    <div className="flex items-start gap-3.5 py-3.5 border-b border-[var(--border-subtle)] last:border-b-0">
       <span
         className={cn(
-          'mt-[1px] shrink-0 inline-flex items-center px-[5px] py-[2px] rounded-[2px] text-[9px] font-bold tracking-[0.1em] uppercase border',
+          'mt-[2px] shrink-0 inline-flex items-center px-[6px] py-[3px] rounded-[3px] text-[10px] font-bold tracking-[0.1em] uppercase border',
           levelStyle[level]
         )}
       >
         {level}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[12px] font-medium text-[var(--text-primary)] leading-snug">{label}</p>
-        <p className="text-[11px] text-[var(--text-muted)] mt-[2px] leading-snug truncate">{detail}</p>
+        <p className="text-[13px] font-medium text-[var(--text-primary)] leading-snug">{label}</p>
+        <p className="text-[12px] text-[var(--text-muted)] mt-[3px] leading-snug truncate">{detail}</p>
       </div>
-      <div className="flex items-center gap-1 shrink-0 text-[var(--text-muted)]">
+      <div className="flex items-center gap-1.5 shrink-0 text-[var(--text-muted)] mt-[2px]">
         <Clock className="w-3 h-3" strokeWidth={1.5} />
-        <span className="text-[10px]">{time}</span>
+        <span className="text-[11px]">{time}</span>
       </div>
     </div>
   );
@@ -126,29 +147,29 @@ function SignalRow({ label, detail, level, time }: {
 export default function OverviewPage() {
   return (
     <DashboardShell title="Overview" breadcrumb={['BAML Platform', 'Overview']}>
-      <div className="p-5 space-y-4 max-w-[1600px]">
+      <div className="px-8 py-7 space-y-7 max-w-[1680px]">
 
-        {/* ── Page header ────────────────────────────────────────────── */}
+        {/* ── Page header ──────────────────────────────────────────── */}
         <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-[18px] font-bold tracking-tight text-[var(--text-primary)]">
+            <h1 className="text-[24px] font-bold tracking-tight text-[var(--text-primary)] leading-tight">
               Risk Dashboard
             </h1>
-            <p className="text-[12px] text-[var(--text-muted)] mt-0.5">
+            <p className="text-[13px] text-[var(--text-muted)] mt-1">
               As of 14 May 2026 · FY2026 Q2 · Consolidated view
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="btn btn-secondary btn-sm">Export</button>
-            <button className="btn btn-primary btn-sm flex items-center gap-1.5">
-              <TrendingUp className="w-3 h-3" />
+          <div className="flex items-center gap-2.5">
+            <button className="btn btn-secondary">Export</button>
+            <button className="btn btn-primary flex items-center gap-2">
+              <TrendingUp className="w-3.5 h-3.5" />
               Run Scenario
             </button>
           </div>
         </div>
 
-        {/* ── Row 1 — KPI tiles ──────────────────────────────────────── */}
-        <div className="grid grid-cols-4 gap-3">
+        {/* ── Row 1 — KPI tiles ────────────────────────────────────── */}
+        <div className="grid grid-cols-4 gap-4">
           <KPIStatCard
             label="EBITDA at Risk"
             value="124.3"
@@ -161,6 +182,7 @@ export default function OverviewPage() {
             label="Hedge Ratio"
             value="67.4"
             unit="%"
+            unitSuffix
             delta="+3.1%"
             deltaLabel="vs. target 70%"
             trend="positive"
@@ -184,15 +206,16 @@ export default function OverviewPage() {
         </div>
 
         {/* ── Row 2 — Risk / Hedge / Scenarios ─────────────────────── */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-5">
 
           {/* Risk Summary */}
           <PanelContainer
             label="Risk Summary"
             accent="negative"
             action={
-              <button className="text-[10px] font-semibold tracking-widest uppercase text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
-                Details →
+              <button className="flex items-center gap-1 text-[11.5px] font-medium text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
+                Details
+                <ExternalLink className="w-3 h-3" strokeWidth={1.75} />
               </button>
             }
           >
@@ -205,25 +228,26 @@ export default function OverviewPage() {
 
           {/* Hedge Status */}
           <PanelContainer
-            label="Hedge Portfolio Status"
+            label="Hedge Portfolio"
             accent="yellow"
             action={
               <span className="badge badge-positive">Active</span>
             }
           >
-            <MetricRow label="Total Notional Hedged"    value="$231.4M" />
-            <MetricRow label="Mark-to-Market P&L"       value="+$6.8M"  valueClass="text-[var(--status-positive)]" />
-            <MetricRow label="Average Hedge Duration"   value="8.4 mo"  />
-            <MetricRow label="Instruments (Active)"     value="14"      />
-            <MetricRow label="Next Maturity"            value="Jun 30"  />
+            <MetricRow label="Total Notional Hedged"  value="$231.4M" />
+            <MetricRow label="Mark-to-Market P&L"     value="+$6.8M"  valueClass="text-[var(--status-positive)]" />
+            <MetricRow label="Average Hedge Duration" value="8.4 mo"  />
+            <MetricRow label="Instruments (Active)"   value="14"      />
+            <MetricRow label="Next Maturity"          value="Jun 30"  />
           </PanelContainer>
 
           {/* Active Scenarios */}
           <PanelContainer
             label="Active Scenarios"
             action={
-              <button className="text-[10px] font-semibold tracking-widest uppercase text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
-                Manage →
+              <button className="flex items-center gap-1 text-[11.5px] font-medium text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
+                Manage
+                <ExternalLink className="w-3 h-3" strokeWidth={1.75} />
               </button>
             }
           >
@@ -235,9 +259,9 @@ export default function OverviewPage() {
             ].map((s) => (
               <div
                 key={s.name}
-                className="flex items-center justify-between py-[9px] border-b border-[var(--border-subtle)] last:border-b-0"
+                className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)] last:border-b-0"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <span
                     className={cn(
                       'w-1.5 h-1.5 rounded-full shrink-0',
@@ -246,13 +270,13 @@ export default function OverviewPage() {
                       'bg-[var(--text-muted)]'
                     )}
                   />
-                  <span className="text-[12px] text-[var(--text-primary)]">{s.name}</span>
+                  <span className="text-[13px] text-[var(--text-primary)]">{s.name}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-[12px] text-[var(--text-primary)] nums-tabular">{s.ebitda}</span>
+                <div className="flex items-center gap-4">
+                  <span className="font-mono text-[13px] text-[var(--text-primary)] nums-tabular">{s.ebitda}</span>
                   <span
                     className={cn(
-                      'font-mono text-[11px] nums-tabular w-[64px] text-right',
+                      'font-mono text-[12px] nums-tabular w-[68px] text-right',
                       s.badge === 'positive' ? 'text-[var(--status-positive)]' :
                       s.badge === 'negative' ? 'text-[var(--status-negative)]' :
                       'text-[var(--text-muted)]'
@@ -267,7 +291,7 @@ export default function OverviewPage() {
         </div>
 
         {/* ── Row 3 — Signals / Market Snapshot ────────────────────── */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-5">
 
           {/* Risk Signals */}
           <PanelContainer
@@ -304,29 +328,29 @@ export default function OverviewPage() {
           <PanelContainer
             label="Market Snapshot"
             footer={
-              <p className="text-[10px] text-[var(--text-muted)]">
-                Data sourced from Bloomberg L.P. · Delayed 15 min · Last refresh 09:42 EST
+              <p className="text-[11px] text-[var(--text-muted)]">
+                Bloomberg L.P. · Delayed 15 min · Last refresh 09:42 EST
               </p>
             }
           >
             <div className="grid grid-cols-2 gap-x-8">
               <div>
-                <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[var(--text-muted)] mb-1.5">
+                <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--text-muted)] mb-2">
                   Commodities
                 </p>
-                <MetricRow label="WTI Crude"       value="$82.14 / bbl" />
-                <MetricRow label="Brent Crude"     value="$85.60 / bbl" />
-                <MetricRow label="Natural Gas"     value="$2.84 / MMBtu" />
-                <MetricRow label="Carbon Credits"  value="€65.20 / tCO₂" />
+                <MetricRow label="WTI Crude"      value="$82.14 / bbl"  />
+                <MetricRow label="Brent Crude"    value="$85.60 / bbl"  />
+                <MetricRow label="Natural Gas"    value="$2.84 / MMBtu" />
+                <MetricRow label="Carbon Credits" value="€65.20 / tCO₂" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[var(--text-muted)] mb-1.5">
+                <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--text-muted)] mb-2">
                   FX & Rates
                 </p>
-                <MetricRow label="EUR / USD"       value="1.0845" />
-                <MetricRow label="GBP / USD"       value="1.2731" />
-                <MetricRow label="LIBOR 3M"        value="5.320%" />
-                <MetricRow label="10Y UST Yield"   value="4.485%" />
+                <MetricRow label="EUR / USD"    value="1.0845" />
+                <MetricRow label="GBP / USD"    value="1.2731" />
+                <MetricRow label="LIBOR 3M"     value="5.320%" />
+                <MetricRow label="10Y UST Yield" value="4.485%" />
               </div>
             </div>
           </PanelContainer>

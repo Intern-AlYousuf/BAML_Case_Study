@@ -6,14 +6,12 @@ import { Topbar } from './Topbar';
 
 interface DashboardShellProps {
   children: React.ReactNode;
-  /** Page title shown in the topbar when no breadcrumb is provided */
   title?: string;
-  /** Ordered breadcrumb segments — last item is the current page */
   breadcrumb?: string[];
 }
 
 const contentVariants = {
-  hidden:  { opacity: 0, y: 6 },
+  hidden:  { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0 },
 };
 
@@ -23,13 +21,13 @@ export function DashboardShell({ children, title, breadcrumb }: DashboardShellPr
       <Sidebar />
       <Topbar title={title} breadcrumb={breadcrumb} />
 
-      {/* Main content — offset for fixed sidebar + topbar */}
-      <main className="ml-[220px] pt-12 min-h-screen">
+      {/* Content — offset for 260px sidebar + 56px topbar */}
+      <main className="ml-[260px] pt-14 min-h-screen">
         <motion.div
           variants={contentVariants}
           initial="hidden"
           animate="visible"
-          transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+          transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
           className="h-full"
         >
           {children}
