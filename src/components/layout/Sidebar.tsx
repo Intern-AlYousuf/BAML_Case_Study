@@ -17,10 +17,10 @@ import type { NavSection } from '@/types/navigation';
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    label: 'Platform',
+    label: 'Analytics',
     items: [
+      { label: 'Scenario Analysis', href: '/scenario', icon: TrendingUp,     badge: 'LIVE' },
       { label: 'Overview',          href: '/',         icon: LayoutDashboard },
-      { label: 'Scenario Analysis', href: '/scenario', icon: TrendingUp,  badge: 'LIVE' },
       { label: 'Risk Exposure',     href: '/risk',     icon: Shield },
       { label: 'Hedge Portfolio',   href: '/hedge',    icon: BarChart3 },
       { label: 'Market Data',       href: '/market',   icon: Activity },
@@ -73,9 +73,12 @@ export function Sidebar() {
                         whileHover={{ x: 2 }}
                         transition={{ duration: 0.12, ease: 'easeOut' }}
                         className={cn(
-                          'relative flex items-center gap-3 px-2.5 py-2.5 rounded-[6px] text-[14px] font-medium transition-colors duration-100 group cursor-pointer select-none',
+                          'relative flex items-center gap-3 px-2.5 rounded-[6px] text-[14px] font-medium transition-colors duration-100 group cursor-pointer select-none',
+                          item.href === '/scenario' ? 'py-3' : 'py-2.5',
                           isActive
                             ? 'bg-[var(--accent-dim)] text-[var(--accent-primary)]'
+                            : item.href === '/scenario'
+                            ? 'text-[var(--text-primary)] hover:bg-[var(--surface-overlay)]'
                             : 'text-[var(--text-secondary)] hover:bg-[var(--surface-overlay)] hover:text-[var(--text-primary)]'
                         )}
                       >
