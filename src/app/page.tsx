@@ -1,39 +1,103 @@
+'use client';
+
 import Link from 'next/link';
 import { DashboardShell } from '@/components/layout/DashboardShell';
-import { PanelContainer } from '@/components/ui/PanelContainer';
+import { KPIStatCard } from '@/components/ui/KPIStatCard';
+import { motion } from 'framer-motion';
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  ReferenceLine,
+} from 'recharts';
+import {
+  TrendingUp,
+  ArrowRight,
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  TrendingUp,
-  ChevronRight,
-  Zap,
-  Shield,
-  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   KPI Card
+   Static data
 ───────────────────────────────────────────────────────────────────────────── */
-function KPICard({
+
+const BASE_EBITDA = 487.2;
+
+const SCENARIOS = [
+  { name: 'Base Case',   ebitda: 487.2, type: 'base'     },
+  { name: 'Oil +20%',    ebitda: 421.6, type: 'negative' },
+  { name: 'FX Bear',     ebitda: 459.3, type: 'negative' },
+  { name: 'Full Hedge',  ebitda: 498.8, type: 'positive' },
+  { name: 'Stress Test', ebitda: 312.4, type: 'severe'   },
+] as const;
+
+const MARKET_DATA = [
+  { label: 'WTI Crude',  value: '$82.14', delta: '+0.42%', trend: 'positive' as const },
+  { label: 'Brent',      value: '$85.60', delta: '+0.28%', trend: 'positive' as const },
+  { label: 'EUR / USD',  value: '1.0845', delta: '−0.12%', trend: 'negative' as const },
+  { label: 'Nat. Gas',   value: '$2.84',  delta: '−0.08%', trend: 'negative' as const },
+  { label: 'Carbon EU',  value: '€65.20', delta: '+1.14%', trend: 'positive' as const },
+  { label: 'Freight',    value: '1.00×',  delta: 'Flat',   trend: 'neutral'  as const },
+];
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Chart tooltip
+───────────────────────────────────────────────────────────────────────────── */
+
+function ScenarioTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  const val   = payload[0].value;
+  const diff  = val - BASE_EBITDA;
+  const isPos = diff >= 0;
+
+  return (
+    <div className="rounded-xl border border-[var(--border-base)] bg-[var(--surface-elevated)] px-4 py-3 shadow-lg">
+      <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
+        {label}
+      </p>
+      <p className="font-mono text-[17px] font-bold nums-tabular text-[var(--text-primary)]">
+        ${val.toFixed(1)}M
+      </p>
+      {diff !== 0 && (
+        <p
+          className={cn(
+            'mt-1 font-mono text-[12px] font-semibold nums-tabular',
+            isPos ? 'text-[var(--status-positive)]' : 'text-[var(--status-negative)]',
+          )}
+        >
+          {isPos ? '+' : ''}${diff.toFixed(1)}M vs base
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Market ticker row item
+───────────────────────────────────────────────────────────────────────────── */
+
+function MarketItem({
   label,
   value,
   delta,
-  deltaLabel,
   trend,
-  unit,
-  unitSuffix,
-}: {
-  label: string;
-  value: string;
-  delta: string;
-  deltaLabel: string;
-  trend: 'positive' | 'negative' | 'neutral';
-  unit?: string;
-  unitSuffix?: boolean;
-}) {
-  const DeltaIcon =
+}: (typeof MARKET_DATA)[number]) {
+  const Icon =
     trend === 'positive' ? ArrowUpRight :
     trend === 'negative' ? ArrowDownRight :
     Minus;
@@ -43,263 +107,337 @@ function KPICard({
     trend === 'negative' ? 'text-[var(--status-negative)]' :
     'text-[var(--text-muted)]';
 
-  const accentBar =
-    trend === 'positive' ? 'bg-[var(--status-positive)]' :
-    trend === 'negative' ? 'bg-[var(--status-negative)]' :
-    'bg-[var(--border-base)]';
-
   return (
-    <div className="relative flex flex-col bg-[var(--surface-secondary)] rounded-xl border border-[var(--border-subtle)] p-6 min-h-[168px] transition-colors duration-150 hover:bg-[var(--surface-elevated)] group">
-      <div className={cn('absolute top-0 left-6 right-6 h-[2px] rounded-b-full opacity-50', accentBar)} />
-      <p className="text-[10.5px] font-semibold tracking-[0.14em] uppercase text-[var(--text-muted)] mb-auto">
+    <div className="flex flex-1 flex-col gap-2 border-r border-[var(--border-subtle)] px-5 last:border-r-0 first:pl-0">
+      <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
         {label}
-      </p>
-      <div className="flex items-baseline gap-1.5 mt-6 mb-3">
-        {unit && !unitSuffix && (
-          <span className="font-mono text-[18px] font-medium text-[var(--text-secondary)]">{unit}</span>
-        )}
-        <span className="font-mono text-[42px] font-bold text-[var(--text-primary)] leading-none nums-tabular tracking-tight">
-          {value}
-        </span>
-        {unit && unitSuffix && (
-          <span className="font-mono text-[18px] font-medium text-[var(--text-secondary)]">{unit}</span>
-        )}
-      </div>
-      <div className={cn('flex items-center gap-1.5', deltaColor)}>
-        <DeltaIcon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
-        <span className="font-mono text-[12.5px] font-semibold nums-tabular">{delta}</span>
-        <span className="text-[11.5px] text-[var(--text-muted)] font-normal">{deltaLabel}</span>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Metric Row
-───────────────────────────────────────────────────────────────────────────── */
-function MetricRow({
-  label,
-  value,
-  valueClass,
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)] last:border-b-0">
-      <span className="text-[13px] text-[var(--text-secondary)]">{label}</span>
-      <span className={cn('font-mono text-[13px] font-medium nums-tabular text-[var(--text-primary)]', valueClass)}>
+      </span>
+      <span className="font-mono text-[16px] font-semibold nums-tabular text-[var(--text-primary)]">
         {value}
+      </span>
+      <span className={cn('flex items-center gap-0.5 font-mono text-[11.5px] font-medium nums-tabular', deltaColor)}>
+        <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} />
+        {delta}
       </span>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   Bar fill by scenario type
+───────────────────────────────────────────────────────────────────────────── */
+
+function barFill(type: string): string {
+  if (type === 'base')     return 'var(--accent-primary)';
+  if (type === 'positive') return 'var(--status-positive)';
+  if (type === 'negative') return 'var(--status-negative)';
+  if (type === 'severe')   return '#9f1717';
+  return 'var(--border-strong)';
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    Page
 ───────────────────────────────────────────────────────────────────────────── */
+
 export default function OverviewPage() {
   return (
     <DashboardShell title="Overview" breadcrumb={['BAML Platform', 'Overview']}>
-      <div className="px-8 py-8 space-y-8 max-w-[1400px]">
+      <div className="mx-auto max-w-[1600px] px-10 py-12 space-y-10">
 
-        {/* ── Page header ──────────────────────────────────────────── */}
-        <div className="flex items-end justify-between">
-          <div>
-            <h1 className="text-[22px] font-bold tracking-tight text-[var(--text-primary)] leading-none">
+        {/* ── 1. Page header ───────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
+          className="flex items-end justify-between"
+        >
+          <div className="space-y-2">
+            <h1 className="text-[36px] font-semibold tracking-tight text-[var(--text-primary)] leading-none">
               Portfolio Overview
             </h1>
-            <p className="text-[12.5px] text-[var(--text-muted)] mt-2">
+            <p className="text-[15px] text-[var(--text-muted)]">
               FY2026 Q2 · Consolidated · As of 14 May 2026
             </p>
           </div>
+
           <Link href="/scenario">
-            <button className="btn btn-primary flex items-center gap-2 text-[13px] px-4 py-2">
-              <Zap className="w-3.5 h-3.5" />
-              Open Scenario Analysis
+            <button className="btn btn-primary flex items-center gap-2 px-5 py-2.5 text-[13.5px]">
+              <TrendingUp className="h-4 w-4" />
+              Run Scenario Analysis
             </button>
           </Link>
-        </div>
+        </motion.div>
 
-        {/* ── KPI tiles ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-4 gap-4">
-          <KPICard
+        {/* ── 2. KPI row ───────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.04, ease: [0.2, 0, 0, 1] }}
+          className="grid grid-cols-4 gap-5"
+        >
+          <KPIStatCard
             label="EBITDA at Risk"
             value="124.3"
             unit="$M"
+            unitPosition="prefix"
             delta="−$8.2M"
             deltaLabel="vs last quarter"
-            trend="negative"
+            signal="negative"
+            accent="negative"
+            size="lg"
           />
-          <KPICard
+          <KPIStatCard
             label="Hedge Ratio"
             value="67.4"
             unit="%"
-            unitSuffix
+            unitPosition="suffix"
             delta="+3.1%"
             deltaLabel="vs target 70%"
-            trend="positive"
+            signal="positive"
+            accent="positive"
+            size="lg"
           />
-          <KPICard
+          <KPIStatCard
             label="FX Exposure"
             value="342.8"
             unit="$M"
+            unitPosition="prefix"
             delta="+$12.4M"
             deltaLabel="unhedged notional"
-            trend="negative"
+            signal="negative"
+            accent="negative"
+            size="lg"
           />
-          <KPICard
-            label="Commodity Exp."
-            value="89.6"
+          <KPIStatCard
+            label="Net EBITDA (Base)"
+            value="487.2"
             unit="$M"
-            delta="—"
-            deltaLabel="no change"
-            trend="neutral"
+            unitPosition="prefix"
+            delta="+$6.8M"
+            deltaLabel="hedge benefit"
+            signal="positive"
+            accent="yellow"
+            size="lg"
+            featured
           />
-        </div>
+        </motion.div>
 
-        {/* ── Scenario Analysis CTA ────────────────────────────────── */}
-        <Link href="/scenario" className="block group">
-          <div className="relative overflow-hidden rounded-xl border border-[rgba(255,230,0,0.18)] bg-[var(--accent-dim)] px-8 py-6 transition-all duration-200 hover:border-[rgba(255,230,0,0.3)] hover:bg-[rgba(35,31,0,0.9)]">
-            {/* Background glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(255,230,0,0.02)] to-transparent pointer-events-none" />
+        {/* ── 3. Scenario Analysis CTA ─────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.08, ease: [0.2, 0, 0, 1] }}
+        >
+          <Link href="/scenario" className="block group">
+            <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-[rgba(245,217,10,0.18)] bg-[var(--accent-dim)] px-12 py-10 transition-all duration-200 hover:border-[rgba(245,217,10,0.35)]">
+              {/* Ambient glow layers */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[rgba(255,230,0,0.05)] via-transparent to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-2/5 bg-gradient-to-l from-[rgba(255,230,0,0.03)] to-transparent" />
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-10 h-10 rounded-lg bg-[var(--accent-primary)] flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-5 h-5 text-black" strokeWidth={2.5} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2.5 mb-1.5">
-                    <h2 className="text-[15px] font-bold text-[var(--accent-primary)] leading-none tracking-tight">
-                      Scenario Analysis
-                    </h2>
-                    <span className="text-[9px] font-bold tracking-[0.14em] text-[var(--accent-primary)] bg-[rgba(255,230,0,0.12)] border border-[rgba(255,230,0,0.2)] px-[5px] py-[2.5px] rounded-[3px] uppercase leading-none">
-                      Primary
+              <div className="relative flex items-center justify-between gap-16">
+
+                {/* Left — content */}
+                <div className="flex-1">
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-primary)]">
+                      <TrendingUp className="h-5 w-5 text-black" strokeWidth={2.5} />
+                    </div>
+                    <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[var(--accent-muted)]">
+                      Primary Feature
                     </span>
                   </div>
-                  <p className="text-[12.5px] text-[var(--text-secondary)] leading-relaxed max-w-[560px]">
-                    Model commodity shocks, FX moves and hedge strategies interactively.
-                    Adjust sliders and see EBITDA impact, waterfall bridge, and sensitivity analysis live.
+
+                  <h2 className="mb-3 text-[26px] font-bold leading-tight tracking-tight text-[var(--accent-primary)]">
+                    Scenario Analysis
+                  </h2>
+                  <p className="mb-7 max-w-[520px] text-[14.5px] leading-relaxed text-[var(--text-secondary)]">
+                    Model commodity shocks, FX rate movements, and hedge strategy changes
+                    interactively. Watch EBITDA impact, waterfall decomposition, and
+                    sensitivity analysis update in real time.
                   </p>
+
+                  {/* Feature pills */}
+                  <div className="flex items-center gap-6">
+                    {[
+                      'Live EBITDA Recalculation',
+                      'Waterfall Bridge',
+                      'Hedge Simulation',
+                      'Stress Testing',
+                    ].map((tag) => (
+                      <span key={tag} className="flex items-center gap-1.5 text-[12px] text-[var(--text-muted)]">
+                        <span className="h-1 w-1 rounded-full bg-[var(--accent-muted)]" />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-[var(--accent-primary)] group-hover:gap-3 transition-all duration-200 shrink-0">
-                <span className="text-[13px] font-semibold">Open</span>
-                <ChevronRight className="w-4 h-4" strokeWidth={2} />
-              </div>
-            </div>
 
-            {/* Feature pills */}
-            <div className="flex items-center gap-2 mt-4 ml-[60px]">
-              {[
-                'Live Recalculation',
-                'EBITDA Waterfall',
-                'Hedge Simulation',
-                'Sensitivity Analysis',
-                'Stress Testing',
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] font-medium text-[var(--text-muted)] bg-[var(--surface-elevated)] border border-[var(--border-base)] px-2.5 py-1 rounded-md"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Link>
-
-        {/* ── Risk summary / Hedge portfolio / Active scenarios ─────── */}
-        <div className="grid grid-cols-3 gap-5">
-
-          {/* Risk Summary */}
-          <PanelContainer
-            label="Risk Summary"
-            accent="negative"
-            action={
-              <Link href="/risk">
-                <button className="flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
-                  <Shield className="w-3 h-3" />
-                  Risk detail
-                </button>
-              </Link>
-            }
-          >
-            <MetricRow label="Commodity Price Risk"      value="$52.1M" valueClass="text-[var(--status-negative)]" />
-            <MetricRow label="FX Translation Risk"       value="$38.7M" valueClass="text-[var(--status-negative)]" />
-            <MetricRow label="Interest Rate Sensitivity" value="$18.4M" />
-            <MetricRow label="Counterparty Credit"       value="$15.1M" />
-            <MetricRow label="Liquidity Reserve"         value="$210.0M" valueClass="text-[var(--status-positive)]" />
-          </PanelContainer>
-
-          {/* Hedge Portfolio */}
-          <PanelContainer
-            label="Hedge Portfolio"
-            accent="yellow"
-            action={
-              <span className="badge badge-positive text-[9px]">Active</span>
-            }
-          >
-            <MetricRow label="Total Notional Hedged"  value="$231.4M" />
-            <MetricRow label="Mark-to-Market P&L"     value="+$6.8M" valueClass="text-[var(--status-positive)]" />
-            <MetricRow label="Average Hedge Duration" value="8.4 mo" />
-            <MetricRow label="Instruments (Active)"   value="14" />
-            <MetricRow label="Next Maturity"          value="Jun 30" />
-          </PanelContainer>
-
-          {/* Active Scenarios */}
-          <PanelContainer
-            label="Saved Scenarios"
-            action={
-              <Link href="/scenario">
-                <button className="flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">
-                  <BarChart3 className="w-3 h-3" />
-                  Open simulator
-                </button>
-              </Link>
-            }
-          >
-            {[
-              { name: 'Base Case',         ebitda: '$487.2M', impact: '—',       badge: 'neutral'  },
-              { name: 'Oil +20% Shock',    ebitda: '$421.6M', impact: '−$65.6M', badge: 'negative' },
-              { name: 'FX Bear (USD+10%)', ebitda: '$459.3M', impact: '−$27.9M', badge: 'negative' },
-              { name: 'Hedged Recovery',   ebitda: '$471.0M', impact: '+$49.4M', badge: 'positive' },
-            ].map((s) => (
-              <div
-                key={s.name}
-                className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)] last:border-b-0"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className={cn(
-                      'w-1.5 h-1.5 rounded-full shrink-0',
-                      s.badge === 'positive' ? 'bg-[var(--status-positive)]' :
-                      s.badge === 'negative' ? 'bg-[var(--status-negative)]' :
-                      'bg-[var(--text-muted)]'
-                    )}
-                  />
-                  <span className="text-[13px] text-[var(--text-primary)]">{s.name}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-[13px] text-[var(--text-primary)] nums-tabular">{s.ebitda}</span>
-                  <span
-                    className={cn(
-                      'font-mono text-[12px] nums-tabular w-[64px] text-right',
-                      s.badge === 'positive' ? 'text-[var(--status-positive)]' :
-                      s.badge === 'negative' ? 'text-[var(--status-negative)]' :
-                      'text-[var(--text-muted)]'
-                    )}
-                  >
-                    {s.impact}
+                {/* Right — CTA arrow */}
+                <div className="shrink-0 flex flex-col items-center gap-3">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-primary)] shadow-[0_0_32px_rgba(255,230,0,0.18)] transition-all duration-200 group-hover:scale-105 group-hover:shadow-[0_0_48px_rgba(255,230,0,0.28)]">
+                    <ArrowRight className="h-7 w-7 text-black" strokeWidth={2.5} />
+                  </div>
+                  <span className="text-[12px] font-semibold text-[var(--accent-muted)] opacity-70 transition-opacity duration-200 group-hover:opacity-100">
+                    Launch
                   </span>
                 </div>
               </div>
-            ))}
-          </PanelContainer>
+            </div>
+          </Link>
+        </motion.div>
 
-        </div>
+        {/* ── 4. Chart + Market summary ────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, delay: 0.12, ease: [0.2, 0, 0, 1] }}
+          className="grid grid-cols-[1fr_340px] gap-5"
+        >
+
+          {/* Primary visualization — EBITDA by Scenario */}
+          <div className="rounded-[var(--radius-card)] border border-[var(--border-base)] bg-[var(--surface-elevated)] overflow-hidden">
+            {/* Panel header */}
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-7 py-5">
+              <div>
+                <p className="text-[13px] font-semibold text-[var(--text-primary)] leading-none">
+                  EBITDA by Scenario
+                </p>
+                <p className="mt-1 text-[11.5px] text-[var(--text-muted)]">
+                  Net EBITDA · FY2026 Q2 planning · all values $M
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                {[
+                  { color: 'var(--accent-primary)',   label: 'Base' },
+                  { color: 'var(--status-positive)',   label: 'Upside' },
+                  { color: 'var(--status-negative)',   label: 'Stress' },
+                  { color: '#9f1717',                  label: 'Severe' },
+                ].map(({ color, label }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className="h-[8px] w-[8px] rounded-sm" style={{ background: color }} />
+                    <span className="text-[10.5px] text-[var(--text-muted)]">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div className="px-7 py-6">
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart
+                  data={SCENARIOS}
+                  barCategoryGap="36%"
+                  margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    stroke="var(--chart-grid)"
+                    strokeDasharray="0"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-sans)' }}
+                    dy={8}
+                  />
+                  <YAxis
+                    domain={[250, 520]}
+                    tickFormatter={(v) => `$${v}M`}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+                    width={56}
+                  />
+                  <Tooltip
+                    content={<ScenarioTooltip />}
+                    cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                  />
+                  <ReferenceLine
+                    y={BASE_EBITDA}
+                    stroke="var(--border-strong)"
+                    strokeDasharray="5 4"
+                    strokeWidth={1}
+                    label={{
+                      value: 'Base $487M',
+                      position: 'insideTopRight',
+                      fill: 'var(--text-muted)',
+                      fontSize: 10,
+                      fontFamily: 'var(--font-mono)',
+                      dy: -6,
+                    }}
+                  />
+                  <Bar
+                    dataKey="ebitda"
+                    radius={[5, 5, 0, 0]}
+                    isAnimationActive
+                    animationDuration={500}
+                    animationEasing="ease-out"
+                  >
+                    {SCENARIOS.map((s) => (
+                      <Cell
+                        key={s.name}
+                        fill={barFill(s.type)}
+                        fillOpacity={s.type === 'base' ? 0.85 : 1}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Market snapshot */}
+          <div className="flex flex-col rounded-[var(--radius-card)] border border-[var(--border-base)] bg-[var(--surface-elevated)] overflow-hidden">
+            <div className="border-b border-[var(--border-subtle)] px-6 py-5">
+              <p className="text-[13px] font-semibold text-[var(--text-primary)] leading-none">
+                Market Snapshot
+              </p>
+              <p className="mt-1 text-[11.5px] text-[var(--text-muted)]">
+                Live · As of market close
+              </p>
+            </div>
+
+            <div className="flex flex-1 flex-col divide-y divide-[var(--border-subtle)] px-6">
+              {MARKET_DATA.map((item) => {
+                const Icon =
+                  item.trend === 'positive' ? ArrowUpRight :
+                  item.trend === 'negative' ? ArrowDownRight :
+                  Minus;
+                const deltaColor =
+                  item.trend === 'positive' ? 'text-[var(--status-positive)]' :
+                  item.trend === 'negative' ? 'text-[var(--status-negative)]' :
+                  'text-[var(--text-muted)]';
+
+                return (
+                  <div key={item.label} className="flex items-center justify-between py-[14px]">
+                    <span className="text-[13px] text-[var(--text-secondary)]">{item.label}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[14px] font-semibold nums-tabular text-[var(--text-primary)]">
+                        {item.value}
+                      </span>
+                      <span className={cn('flex items-center gap-0.5 font-mono text-[12px] font-medium nums-tabular', deltaColor)}>
+                        <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} />
+                        {item.delta}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Live indicator */}
+            <div className="border-t border-[var(--border-subtle)] px-6 py-4">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--status-positive)] animate-pulse" />
+                <span className="text-[11px] text-[var(--text-muted)]">
+                  Live feed · updates every 30s
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </motion.div>
 
       </div>
     </DashboardShell>

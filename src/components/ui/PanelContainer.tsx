@@ -9,11 +9,11 @@ import { cn } from '@/lib/utils';
 // ── Variants ──────────────────────────────────────────────────────────────────
 
 const panelVariants = cva(
-  'flex flex-col overflow-hidden border border-[var(--border-base)] rounded-[var(--radius-lg)]',
+  'flex flex-col overflow-hidden border border-[var(--border-base)] rounded-[var(--radius-card)]',
   {
     variants: {
       surface: {
-        default:  'bg-[var(--surface-secondary)]',
+        default:  'bg-[var(--surface-elevated)]',
         elevated: 'bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)]',
         panel:    'bg-[var(--surface-panel)]',
         inset:    'bg-[var(--surface-inset)] border-[var(--border-subtle)]',
@@ -105,9 +105,9 @@ export function PanelContainer({
       {hasHeader && (
         <div
           className={cn(
-            'flex items-center justify-between px-4 py-[10px]',
-            'border-b border-[var(--border-subtle)] bg-[var(--surface-panel)]',
-            'shrink-0 min-h-[40px]',
+            'flex items-center justify-between px-6 py-4',
+            'border-b border-[var(--border-subtle)]',
+            'shrink-0 min-h-[56px]',
             collapsible && 'cursor-pointer select-none hover:bg-[var(--surface-overlay)] transition-colors duration-100'
           )}
           onClick={collapsible ? handleToggle : undefined}
@@ -118,7 +118,7 @@ export function PanelContainer({
         >
           <div className="flex items-center gap-2 min-w-0">
             {label && (
-              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[var(--text-muted)] truncate">
+              <span className="text-[12px] font-semibold tracking-[0.10em] uppercase text-[var(--text-muted)] truncate">
                 {label}
               </span>
             )}
@@ -161,7 +161,7 @@ export function PanelContainer({
             transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
             style={{ overflow: 'hidden' }}
           >
-            <div className={cn('relative flex-1', !noPadding && 'p-4')}>
+            <div className={cn('relative flex-1', !noPadding && 'p-5')}>
               {children}
 
               {/* Loading overlay */}

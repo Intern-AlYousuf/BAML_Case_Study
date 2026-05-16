@@ -11,6 +11,7 @@ import {
   Activity,
   FileBarChart,
   Settings2,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NavSection } from '@/types/navigation';
@@ -35,110 +36,193 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   NavItem — 48px min-height, modern SaaS hover + active states
+───────────────────────────────────────────────────────────────────────────── */
+
+interface NavItemProps {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  badge?: string;
+  isActive: boolean;
+  isPrimary?: boolean;
+}
+
+function NavItem({ label, href, icon: Icon, badge, isActive, isPrimary }: NavItemProps) {
+  return (
+    <Link href={href} className="block outline-none">
+      <motion.div
+        whileHover={{ x: 1 }}
+        transition={{ duration: 0.1, ease: 'easeOut' }}
+        className={cn(
+          'group relative flex items-center gap-3.5 rounded-[12px] px-3.5 min-h-[48px]',
+          'text-[15px] font-medium cursor-pointer select-none transition-all duration-150',
+          isActive
+            ? 'bg-[rgba(245,217,10,0.10)] text-[var(--accent-primary)]'
+            : isPrimary
+            ? [
+                'bg-[rgba(245,217,10,0.05)] text-[var(--text-primary)]',
+                'border border-[rgba(245,217,10,0.10)]',
+                'hover:bg-[rgba(245,217,10,0.09)] hover:border-[rgba(245,217,10,0.18)]',
+              ].join(' ')
+            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-overlay)] hover:text-[var(--text-primary)]',
+        )}
+      >
+        {/* Active left pill */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.span
+              layoutId="sidebar-active-pill"
+              className="absolute left-0 top-[10px] bottom-[10px] w-[3px] rounded-r-full bg-[var(--accent-primary)]"
+              initial={{ opacity: 0, scaleY: 0.5 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              exit={{ opacity: 0, scaleY: 0.5 }}
+              transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Icon */}
+        <Icon
+          className={cn(
+            'shrink-0 transition-colors duration-150',
+            isPrimary ? 'w-[19px] h-[19px]' : 'w-[18px] h-[18px]',
+            isActive
+              ? 'text-[var(--accent-primary)]'
+              : isPrimary
+              ? 'text-[var(--accent-muted)] group-hover:text-[var(--accent-secondary)]'
+              : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]',
+          )}
+          strokeWidth={isActive || isPrimary ? 2 : 1.75}
+        />
+
+        {/* Label */}
+        <span className={cn('flex-1 leading-none', isPrimary && !isActive && 'font-semibold')}>
+          {label}
+        </span>
+
+        {/* Badge */}
+        {badge && (
+          <span className={cn(
+            'inline-flex items-center px-[7px] py-[3px] rounded-full text-[10px] font-bold tracking-[0.06em] leading-none uppercase',
+            isActive
+              ? 'bg-[rgba(245,217,10,0.18)] text-[var(--accent-primary)] border border-[rgba(245,217,10,0.3)]'
+              : 'bg-[rgba(245,217,10,0.08)] text-[var(--accent-muted)] border border-[rgba(245,217,10,0.15)]',
+          )}>
+            {badge}
+          </span>
+        )}
+      </motion.div>
+    </Link>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Sidebar
+───────────────────────────────────────────────────────────────────────────── */
+
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-[260px] flex flex-col bg-[var(--surface-panel)] border-r border-[var(--border-subtle)] z-[200]">
+    <aside
+      className="fixed inset-y-0 left-0 z-[200] flex w-[280px] flex-col"
+      style={{
+        backgroundColor: 'var(--surface-panel)',
+        borderRight: '1px solid var(--border-subtle)',
+      }}
+    >
 
       {/* ── Brand ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 h-14 px-5 shrink-0 border-b border-[var(--border-subtle)]">
-        <div className="w-7 h-7 bg-[var(--accent-primary)] rounded-[4px] flex items-center justify-center shrink-0">
-          <span className="text-[11px] font-black text-black leading-none tracking-tight">B</span>
+      <div className="flex h-[72px] shrink-0 items-center gap-4 border-b border-[var(--border-subtle)] px-6">
+        {/* Mark */}
+        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--accent-primary)]">
+          <span className="text-[14px] font-black leading-none tracking-tight text-black">B</span>
+          {/* Live status dot */}
+          <span className="absolute -right-[3px] -top-[3px] h-[9px] w-[9px] rounded-full border-2 border-[var(--surface-panel)] bg-[var(--status-positive)]" />
         </div>
-        <div className="flex flex-col leading-none gap-[4px]">
-          <span className="text-[12px] font-bold text-[var(--text-primary)] tracking-[0.14em] uppercase">
+
+        {/* Wordmark */}
+        <div className="flex flex-col gap-[5px] leading-none">
+          <span className="text-[13.5px] font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
             BAML
           </span>
-          <span className="text-[10.5px] text-[var(--text-muted)] tracking-[0.06em]">
+          <span className="text-[11.5px] tracking-[0.03em] text-[var(--text-muted)]">
             Risk Intelligence
           </span>
         </div>
       </div>
 
       {/* ── Navigation ─────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto scroll-thin py-4 px-3 space-y-5">
-        {NAV_SECTIONS.map((section) => (
-          <div key={section.label}>
-            <p className="px-2.5 mb-2 text-[10.5px] font-semibold tracking-[0.14em] uppercase text-[var(--text-muted)]">
-              {section.label}
-            </p>
-            <ul className="space-y-0.5">
-              {section.items.map((item) => {
-                const isActive = pathname === item.href;
-                return (
+      <nav className="scroll-thin flex-1 overflow-y-auto px-3 py-5">
+
+        {/* Scenario Analysis — always first, always primary */}
+        <div className="mb-5">
+          <NavItem
+            label="Scenario Analysis"
+            href="/scenario"
+            icon={TrendingUp}
+            badge="LIVE"
+            isActive={pathname === '/scenario'}
+            isPrimary
+          />
+        </div>
+
+        {/* Section groups */}
+        {NAV_SECTIONS.map((section) => {
+          const items = section.items.filter((i) => i.href !== '/scenario');
+          if (!items.length) return null;
+          return (
+            <div key={section.label} className="mb-6">
+              <p className="mb-2 px-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                {section.label}
+              </p>
+              <ul className="space-y-[2px]">
+                {items.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="block">
-                      <motion.div
-                        whileHover={{ x: 2 }}
-                        transition={{ duration: 0.12, ease: 'easeOut' }}
-                        className={cn(
-                          'relative flex items-center gap-3 px-2.5 rounded-[6px] text-[14px] font-medium transition-colors duration-100 group cursor-pointer select-none',
-                          item.href === '/scenario' ? 'py-3' : 'py-2.5',
-                          isActive
-                            ? 'bg-[var(--accent-dim)] text-[var(--accent-primary)]'
-                            : item.href === '/scenario'
-                            ? 'text-[var(--text-primary)] hover:bg-[var(--surface-overlay)]'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-overlay)] hover:text-[var(--text-primary)]'
-                        )}
-                      >
-                        {/* Active indicator */}
-                        <AnimatePresence>
-                          {isActive && (
-                            <motion.span
-                              layoutId="sidebar-pill"
-                              className="absolute left-0 top-[6px] bottom-[6px] w-[2.5px] bg-[var(--accent-primary)] rounded-full"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.15 }}
-                            />
-                          )}
-                        </AnimatePresence>
-
-                        <item.icon
-                          className={cn(
-                            'w-[16px] h-[16px] shrink-0 transition-colors duration-100',
-                            isActive
-                              ? 'text-[var(--accent-primary)]'
-                              : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
-                          )}
-                          strokeWidth={isActive ? 2 : 1.75}
-                        />
-
-                        <span className="flex-1 leading-none">{item.label}</span>
-
-                        {item.badge && (
-                          <span className="text-[9px] font-bold tracking-[0.1em] text-[var(--accent-primary)] bg-[var(--accent-dim)] px-[5px] py-[2.5px] rounded-[3px] border border-[rgba(255,230,0,0.18)] leading-none">
-                            {item.badge}
-                          </span>
-                        )}
-                      </motion.div>
-                    </Link>
+                    <NavItem
+                      label={item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      badge={item.badge}
+                      isActive={pathname === item.href}
+                    />
                   </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </nav>
 
       {/* ── User footer ────────────────────────────────────────────── */}
-      <div className="shrink-0 border-t border-[var(--border-subtle)] px-4 py-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-[5px] bg-[var(--surface-elevated)] border border-[var(--border-base)] flex items-center justify-center shrink-0">
-            <span className="text-[11px] font-bold text-[var(--text-secondary)] leading-none">TA</span>
+      <div className="shrink-0 border-t border-[var(--border-subtle)] p-3">
+        <button className="group flex w-full items-center gap-3.5 rounded-[12px] px-3.5 py-3.5 transition-colors duration-150 hover:bg-[var(--surface-overlay)]">
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--accent-dim)] border border-[rgba(245,217,10,0.15)]">
+              <span className="text-[12px] font-bold leading-none text-[var(--accent-primary)]">TA</span>
+            </div>
+            <span className="absolute -bottom-px -right-px h-[10px] w-[10px] rounded-full border-2 border-[var(--surface-panel)] bg-[var(--status-positive)]" />
           </div>
-          <div className="flex flex-col min-w-0 gap-[3px]">
-            <span className="text-[13px] font-semibold text-[var(--text-primary)] leading-none truncate">
+
+          {/* Identity */}
+          <div className="flex min-w-0 flex-1 flex-col gap-[4px] text-left leading-none">
+            <span className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
               Treasury Analyst
             </span>
-            <span className="text-[11px] text-[var(--text-muted)] leading-none">
-              EY Advisory
-            </span>
+            <span className="text-[12px] text-[var(--text-muted)]">EY Advisory</span>
           </div>
-        </div>
+
+          {/* Expand icon — appears on hover */}
+          <ChevronsUpDown
+            className="h-[15px] w-[15px] shrink-0 text-[var(--text-muted)] opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+            strokeWidth={1.75}
+          />
+        </button>
       </div>
+
     </aside>
   );
 }

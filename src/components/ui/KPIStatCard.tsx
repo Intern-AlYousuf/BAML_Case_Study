@@ -1,132 +1,133 @@
 'use client';
 
 import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
+   Types
+───────────────────────────────────────────────────────────────────────────── */
 
 export type SignalDirection = 'positive' | 'negative' | 'neutral' | 'warning';
-export type KPISize = 'sm' | 'md' | 'lg';
-export type KPIAccent = 'none' | 'yellow' | 'positive' | 'negative' | 'warning' | 'neutral';
+export type KPISize        = 'sm' | 'md' | 'lg';
+export type KPIAccent      = 'none' | 'yellow' | 'positive' | 'negative' | 'warning' | 'neutral';
 
-// ── Accent border map ─────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
+   Design maps
+───────────────────────────────────────────────────────────────────────────── */
 
-const ACCENT_BORDER: Record<KPIAccent, string> = {
+const ACCENT_BAR: Record<KPIAccent, string> = {
   none:     '',
-  yellow:   'border-l-2 border-l-[var(--accent-primary)]',
-  positive: 'border-l-2 border-l-[var(--status-positive)]',
-  negative: 'border-l-2 border-l-[var(--status-negative)]',
-  warning:  'border-l-2 border-l-[var(--status-warning)]',
-  neutral:  'border-l-2 border-l-[var(--status-neutral)]',
+  yellow:   'bg-[var(--accent-primary)]',
+  positive: 'bg-[var(--status-positive)]',
+  negative: 'bg-[var(--status-negative)]',
+  warning:  'bg-[var(--status-warning)]',
+  neutral:  'bg-[var(--border-strong)]',
 };
 
-// ── Size scale ────────────────────────────────────────────────────────────────
-
-const SIZE_CONFIG: Record<KPISize, {
-  card:    string;
-  label:   string;
-  value:   string;
-  unit:    string;
-  delta:   string;
-  period:  string;
-  padding: string;
-}> = {
-  sm: {
-    card:    'min-h-[96px]',
-    label:   'text-[10px] tracking-[0.12em]',
-    value:   'text-[1.5rem] leading-none',
-    unit:    'text-[0.8rem]',
-    delta:   'text-[11px]',
-    period:  'text-[10px]',
-    padding: 'p-3',
-  },
-  md: {
-    card:    'min-h-[120px]',
-    label:   'text-[10px] tracking-[0.12em]',
-    value:   'text-[2rem] leading-none',
-    unit:    'text-[1rem]',
-    delta:   'text-[12px]',
-    period:  'text-[11px]',
-    padding: 'p-4',
-  },
-  lg: {
-    card:    'min-h-[148px]',
-    label:   'text-[11px] tracking-[0.12em]',
-    value:   'text-[2.5rem] leading-none',
-    unit:    'text-[1.2rem]',
-    delta:   'text-[13px]',
-    period:  'text-[11px]',
-    padding: 'p-5',
-  },
-};
-
-// ── Delta direction config ────────────────────────────────────────────────────
-
-const DELTA_CONFIG: Record<SignalDirection, {
-  color:    string;
-  bgColor:  string;
-  Icon:     React.ElementType;
+const SIGNAL_DELTA: Record<SignalDirection, {
+  text:   string;
+  bg:     string;
+  border: string;
+  Icon:   React.ElementType;
 }> = {
   positive: {
-    color:   'text-[var(--status-positive)]',
-    bgColor: 'bg-[var(--status-positive-dim)]',
-    Icon:    TrendingUp,
+    text:   'text-[var(--status-positive)]',
+    bg:     'bg-[var(--status-positive-dim)]',
+    border: 'border-[rgba(34,197,94,0.2)]',
+    Icon:   TrendingUp,
   },
   negative: {
-    color:   'text-[var(--status-negative)]',
-    bgColor: 'bg-[var(--status-negative-dim)]',
-    Icon:    TrendingDown,
+    text:   'text-[var(--status-negative)]',
+    bg:     'bg-[var(--status-negative-dim)]',
+    border: 'border-[rgba(239,68,68,0.2)]',
+    Icon:   TrendingDown,
   },
   warning: {
-    color:   'text-[var(--status-warning)]',
-    bgColor: 'bg-[var(--status-warning-dim)]',
-    Icon:    TrendingUp,
+    text:   'text-[var(--status-warning)]',
+    bg:     'bg-[var(--status-warning-dim)]',
+    border: 'border-[rgba(245,158,11,0.2)]',
+    Icon:   TrendingUp,
   },
   neutral: {
-    color:   'text-[var(--text-muted)]',
-    bgColor: 'bg-[var(--surface-overlay)]',
-    Icon:    Minus,
+    text:   'text-[var(--text-muted)]',
+    bg:     'bg-[var(--surface-overlay)]',
+    border: 'border-[var(--border-base)]',
+    Icon:   Minus,
   },
 };
 
-// ── Props ─────────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
+   Size scale — executive-grade, premium SaaS proportions
+   KPI values: 48px (md) / 52px (lg) per spec
+───────────────────────────────────────────────────────────────────────────── */
+
+const SIZE_CONFIG: Record<KPISize, {
+  card:   string;
+  pad:    string;
+  label:  string;
+  value:  string;
+  unit:   string;
+  delta:  string;
+  period: string;
+}> = {
+  sm: {
+    card:   'min-h-[120px]',
+    pad:    'px-5 pt-6 pb-5',
+    label:  'text-[11px] tracking-[0.12em]',
+    value:  'text-[2rem]',        /* 32px */
+    unit:   'text-[1.125rem]',
+    delta:  'text-[11.5px]',
+    period: 'text-[11px]',
+  },
+  md: {
+    card:   'min-h-[158px]',
+    pad:    'px-6 pt-6 pb-5',
+    label:  'text-[12px] tracking-[0.12em]',
+    value:  'text-[3rem]',        /* 48px */
+    unit:   'text-[1.375rem]',
+    delta:  'text-[12.5px]',
+    period: 'text-[11.5px]',
+  },
+  lg: {
+    card:   'min-h-[172px]',
+    pad:    'px-7 pt-7 pb-6',
+    label:  'text-[12px] tracking-[0.12em]',
+    value:  'text-[3.25rem]',     /* 52px */
+    unit:   'text-[1.5625rem]',
+    delta:  'text-[13px]',
+    period: 'text-[12px]',
+  },
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Props
+───────────────────────────────────────────────────────────────────────────── */
 
 export interface KPIStatCardProps {
-  /** Uppercase metric label */
   label: string;
-  /** Primary display value — use formatted string for full control */
   value: string;
-  /** Currency symbol, unit, or prefix (e.g. "$", "€") */
   unit?: string;
-  /** Position of the unit symbol */
   unitPosition?: 'prefix' | 'suffix';
-  /** Change value — e.g. "+2.34%" or "−$4.2M" */
   delta?: string;
-  /** Period context for the delta — e.g. "vs prior day", "MTD", "YTD" */
   deltaLabel?: string;
-  /** Semantic direction of the change */
   signal?: SignalDirection;
-  /** Card size preset */
   size?: KPISize;
-  /** Left accent border color */
   accent?: KPIAccent;
-  /** Show skeleton loading state */
+  /** Featured / hero card — yellow surface + yellow value text */
+  featured?: boolean;
   loading?: boolean;
-  /** Right-side action slot (icon buttons, context menus) */
   action?: React.ReactNode;
-  /** Sparkline / mini chart slot — renders below the value row */
   sparkline?: React.ReactNode;
-  /** Secondary context line below the delta */
   subtext?: string;
   className?: string;
-  /** Callback when card is clicked */
   onClick?: () => void;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
+   Component
+───────────────────────────────────────────────────────────────────────────── */
 
 export function KPIStatCard({
   label,
@@ -138,6 +139,7 @@ export function KPIStatCard({
   signal = 'neutral',
   size = 'md',
   accent = 'none',
+  featured = false,
   loading = false,
   action,
   sparkline,
@@ -145,149 +147,147 @@ export function KPIStatCard({
   className,
   onClick,
 }: KPIStatCardProps) {
-  const sz = SIZE_CONFIG[size];
-  const deltaConf = DELTA_CONFIG[signal];
+  const sz    = SIZE_CONFIG[size];
+  const dConf = SIGNAL_DELTA[signal];
   const isInteractive = !!onClick;
 
   return (
-    <div
+    <motion.div
+      whileHover={isInteractive ? { y: -2, scale: 1.005 } : undefined}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       className={cn(
-        'relative flex flex-col bg-[var(--surface-secondary)]',
-        'border border-[var(--border-base)] rounded-[var(--radius-lg)]',
-        'overflow-hidden transition-colors duration-100',
+        'group relative flex flex-col overflow-hidden',
+        'rounded-[var(--radius-card)] border transition-all duration-150',
         sz.card,
-        ACCENT_BORDER[accent],
-        isInteractive && 'cursor-pointer hover:bg-[var(--surface-overlay)] hover:border-[var(--border-strong)]',
-        className
+        featured
+          ? 'bg-[rgba(245,217,10,0.06)] border-[rgba(245,217,10,0.20)] hover:border-[rgba(245,217,10,0.32)]'
+          : 'bg-[var(--surface-elevated)] border-[var(--border-base)] hover:bg-[var(--surface-overlay)] hover:border-[var(--border-strong)]',
+        isInteractive && 'cursor-pointer',
+        className,
       )}
       onClick={onClick}
       role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={isInteractive ? (e) => e.key === 'Enter' && onClick?.() : undefined}
     >
+      {/* Top accent bar */}
+      {accent !== 'none' && (
+        <div className={cn('absolute inset-x-0 top-0 h-[2px]', ACCENT_BAR[accent])} />
+      )}
+
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
             key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className={cn('flex flex-col gap-3', sz.padding)}
+            className={cn('flex flex-col gap-3', sz.pad)}
           >
-            <div className="skeleton h-2.5 w-1/3 rounded-sm" />
-            <div className="skeleton h-8 w-2/3 rounded-sm" />
-            <div className="skeleton h-2.5 w-1/2 rounded-sm" />
+            <div className="skeleton h-3 w-1/3 rounded" />
+            <div className="skeleton h-12 w-2/3 rounded" />
+            <div className="skeleton h-3 w-1/2 rounded" />
           </motion.div>
         ) : (
           <motion.div
             key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className={cn('flex flex-col h-full', sz.padding)}
+            className={cn('flex h-full flex-col', sz.pad)}
           >
-            {/* ── Header row: label + action ─────────────────────── */}
-            <div className="flex items-start justify-between gap-2 mb-2.5">
-              <span
-                className={cn(
-                  'font-semibold uppercase tracking-widest text-[var(--text-muted)] leading-none',
-                  sz.label
-                )}
-              >
+
+            {/* Label row */}
+            <div className="flex items-start justify-between gap-2">
+              <span className={cn(
+                'font-semibold uppercase leading-none',
+                sz.label,
+                featured ? 'text-[var(--accent-muted)]' : 'text-[var(--text-muted)]',
+              )}>
                 {label}
               </span>
               {action && (
-                <div className="shrink-0 -mt-0.5">{action}</div>
+                <div className="shrink-0 -mt-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                  {action}
+                </div>
               )}
             </div>
 
-            {/* ── Value row ──────────────────────────────────────── */}
-            <div className="flex items-baseline gap-1 mb-2">
+            {/* Value row */}
+            <div className="mt-auto flex items-baseline gap-1.5 pt-4">
               {unit && unitPosition === 'prefix' && (
-                <span
-                  className={cn(
-                    'font-mono font-semibold text-[var(--text-secondary)] leading-none',
-                    sz.unit
-                  )}
-                >
+                <span className={cn(
+                  'font-mono font-medium leading-none nums-tabular',
+                  sz.unit,
+                  featured ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)]',
+                )}>
                   {unit}
                 </span>
               )}
-              <span
-                className={cn(
-                  'font-mono font-bold text-[var(--text-primary)] nums-tabular tracking-tight leading-none',
-                  sz.value
-                )}
-              >
-                {value}
-              </span>
-              {unit && unitPosition === 'suffix' && (
-                <span
+
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={value}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
                   className={cn(
-                    'font-mono font-semibold text-[var(--text-secondary)] leading-none',
-                    sz.unit
+                    'font-mono font-bold leading-none nums-tabular tracking-tight',
+                    sz.value,
+                    featured ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]',
                   )}
                 >
+                  {value}
+                </motion.span>
+              </AnimatePresence>
+
+              {unit && unitPosition === 'suffix' && (
+                <span className={cn(
+                  'font-mono font-medium leading-none nums-tabular',
+                  sz.unit,
+                  featured ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)]',
+                )}>
                   {unit}
                 </span>
               )}
             </div>
 
-            {/* ── Delta + period row ─────────────────────────────── */}
-            {(delta || deltaLabel || subtext) && (
-              <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mt-auto">
-                {delta && (
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1 font-mono font-semibold nums-tabular leading-none',
-                      sz.delta,
-                      deltaConf.color
-                    )}
-                  >
-                    <deltaConf.Icon
-                      className="w-3 h-3 shrink-0"
-                      strokeWidth={2.5}
-                    />
-                    {delta}
-                  </span>
-                )}
-                {deltaLabel && (
-                  <span
-                    className={cn(
-                      'text-[var(--text-muted)] leading-none',
-                      sz.period
-                    )}
-                  >
-                    {deltaLabel}
-                  </span>
-                )}
-                {subtext && !delta && !deltaLabel && (
-                  <span
-                    className={cn(
-                      'text-[var(--text-muted)] leading-none',
-                      sz.period
-                    )}
-                  >
-                    {subtext}
-                  </span>
-                )}
-              </div>
-            )}
+            {/* Delta row */}
+            <div className="mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+              {delta && (
+                <span className={cn(
+                  'inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5',
+                  'font-mono font-semibold nums-tabular leading-none',
+                  sz.delta,
+                  dConf.text, dConf.bg, dConf.border,
+                )}>
+                  <dConf.Icon className="h-[11px] w-[11px] shrink-0" strokeWidth={2.5} />
+                  {delta}
+                </span>
+              )}
+              {deltaLabel && (
+                <span className={cn('leading-none', sz.period, 'text-[var(--text-muted)]')}>
+                  {deltaLabel}
+                </span>
+              )}
+              {subtext && !delta && !deltaLabel && (
+                <span className={cn('leading-none', sz.period, 'text-[var(--text-muted)]')}>
+                  {subtext}
+                </span>
+              )}
+            </div>
 
-            {/* ── Sparkline slot ─────────────────────────────────── */}
-            {sparkline && (
-              <div className="mt-3 -mx-1">{sparkline}</div>
-            )}
+            {/* Sparkline slot */}
+            {sparkline && <div className="mt-4 -mx-1">{sparkline}</div>}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Yellow focus ring on keyboard navigation ────────────── */}
       {isInteractive && (
-        <span className="absolute inset-0 rounded-[var(--radius-lg)] pointer-events-none focus-visible:ring-accent" />
+        <span
+          className="pointer-events-none absolute inset-0 rounded-[var(--radius-card)] opacity-0 ring-2 ring-[var(--accent-primary)] transition-opacity duration-150 focus-visible:opacity-100"
+          aria-hidden
+        />
       )}
-    </div>
+    </motion.div>
   );
 }

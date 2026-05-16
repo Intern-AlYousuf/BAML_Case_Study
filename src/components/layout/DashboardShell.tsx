@@ -11,8 +11,8 @@ interface DashboardShellProps {
 }
 
 const contentVariants = {
-  hidden:  { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0 },
+  hidden:  { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0  },
 };
 
 export function DashboardShell({ children, title, breadcrumb }: DashboardShellProps) {
@@ -21,13 +21,13 @@ export function DashboardShell({ children, title, breadcrumb }: DashboardShellPr
       <Sidebar />
       <Topbar title={title} breadcrumb={breadcrumb} />
 
-      {/* Content — offset for 260px sidebar + 56px topbar */}
-      <main className="ml-[260px] pt-14 min-h-screen">
+      {/* Content — offset for 280px sidebar + 72px topbar */}
+      <main className="ml-[280px] pt-[72px] min-h-screen">
         <motion.div
           variants={contentVariants}
           initial="hidden"
           animate="visible"
-          transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+          transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
           className="h-full"
         >
           {children}
