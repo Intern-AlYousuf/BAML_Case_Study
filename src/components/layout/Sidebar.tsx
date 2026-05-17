@@ -12,6 +12,8 @@ import {
   FileBarChart,
   Settings2,
   ChevronsUpDown,
+  Percent,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NavSection } from '@/types/navigation';
@@ -21,6 +23,8 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Analytics',
     items: [
       { label: 'Scenario Analysis', href: '/scenario', icon: TrendingUp,     badge: 'LIVE' },
+      { label: 'SOFR Forecast',     href: '/sofr',     icon: Percent,        badge: 'NEW' },
+      { label: 'FX Forecast',       href: '/fx',       icon: ArrowLeftRight, badge: 'NEW' },
       { label: 'Overview',          href: '/',         icon: LayoutDashboard },
       { label: 'Risk Exposure',     href: '/risk',     icon: Shield },
       { label: 'Hedge Portfolio',   href: '/hedge',    icon: BarChart3 },
@@ -56,8 +60,8 @@ function NavItem({ label, href, icon: Icon, badge, isActive, isPrimary }: NavIte
         whileHover={{ x: 1 }}
         transition={{ duration: 0.1, ease: 'easeOut' }}
         className={cn(
-          'group relative flex items-center gap-3.5 rounded-[12px] px-3.5 min-h-[48px]',
-          'text-[15px] font-medium cursor-pointer select-none transition-all duration-150',
+          'group relative flex items-center gap-3.5 rounded-[12px] px-4 min-h-[52px]',
+          'text-[15.5px] font-medium cursor-pointer select-none transition-all duration-150',
           isActive
             ? 'bg-[rgba(245,217,10,0.10)] text-[var(--accent-primary)]'
             : isPrimary
@@ -145,10 +149,10 @@ export function Sidebar() {
 
         {/* Wordmark */}
         <div className="flex flex-col gap-[5px] leading-none">
-          <span className="text-[13.5px] font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
+          <span className="text-[14.5px] font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
             BAML
           </span>
-          <span className="text-[11.5px] tracking-[0.03em] text-[var(--text-muted)]">
+          <span className="text-[12.5px] tracking-[0.03em] text-[var(--text-muted)]">
             Risk Intelligence
           </span>
         </div>
@@ -175,7 +179,7 @@ export function Sidebar() {
           if (!items.length) return null;
           return (
             <div key={section.label} className="mb-6">
-              <p className="mb-2 px-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              <p className="mb-2 px-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
                 {section.label}
               </p>
               <ul className="space-y-[2px]">
@@ -209,10 +213,10 @@ export function Sidebar() {
 
           {/* Identity */}
           <div className="flex min-w-0 flex-1 flex-col gap-[4px] text-left leading-none">
-            <span className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
+            <span className="truncate text-[15px] font-semibold text-[var(--text-primary)]">
               Treasury Analyst
             </span>
-            <span className="text-[12px] text-[var(--text-muted)]">EY Advisory</span>
+            <span className="text-[13px] text-[var(--text-muted)]">EY Advisory</span>
           </div>
 
           {/* Expand icon — appears on hover */}

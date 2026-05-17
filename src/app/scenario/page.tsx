@@ -53,7 +53,7 @@ function ScenarioSlider({
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] font-medium leading-none text-[var(--text-secondary)]">{label}</span>
+        <span className="text-[14px] font-medium leading-none text-[var(--text-secondary)]">{label}</span>
         <div className="flex shrink-0 items-center gap-2">
           {hasDelta && (
             <span className={cn(
@@ -65,7 +65,7 @@ function ScenarioSlider({
               {delta! > 0 ? '+' : ''}{delta!.toFixed(2)}
             </span>
           )}
-          <span className="font-mono text-[14px] font-bold leading-none nums-tabular text-[var(--text-primary)]">
+          <span className="font-mono text-[15px] font-bold leading-none nums-tabular text-[var(--text-primary)]">
             {display}
           </span>
           {unit && <span className="text-[10.5px] leading-none text-[var(--text-muted)]">{unit}</span>}
@@ -131,22 +131,22 @@ function ChartPanel({ title, subtitle, badge, legend, children }: {
 }) {
   return (
     <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border-base)] bg-[var(--surface-elevated)]">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-7 py-5">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-8 py-6">
         <div>
-          <p className="text-[14px] font-semibold leading-none text-[var(--text-primary)]">{title}</p>
-          {subtitle && <p className="mt-1.5 text-[12px] text-[var(--text-muted)]">{subtitle}</p>}
+          <p className="text-[15px] font-semibold leading-none text-[var(--text-primary)]">{title}</p>
+          {subtitle && <p className="mt-1.5 text-[13px] text-[var(--text-muted)]">{subtitle}</p>}
         </div>
-        <div className="flex items-center gap-5 shrink-0">
+        <div className="flex items-center gap-6 shrink-0">
           {legend?.map(({ color, label }) => (
             <div key={label} className="flex items-center gap-2">
-              <span className="h-[8px] w-[8px] rounded-[2px] shrink-0" style={{ background: color }} />
-              <span className="text-[11px] text-[var(--text-muted)]">{label}</span>
+              <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ background: color }} />
+              <span className="text-[12px] text-[var(--text-muted)]">{label}</span>
             </div>
           ))}
           {badge}
         </div>
       </div>
-      <div className="px-7 py-6">{children}</div>
+      <div className="px-8 py-7">{children}</div>
     </div>
   );
 }
@@ -181,7 +181,7 @@ export default function ScenarioPage() {
 
   return (
     <DashboardShell breadcrumb={['BAML Platform', 'Scenario Analysis']}>
-      <div className="flex h-[calc(100vh-72px)] overflow-hidden">
+      <div className="flex h-[calc(100vh-80px)] overflow-hidden">
 
         {/* ══════════════════════════════════════════════════════════════
             LEFT — Scenario Controls (~32%)
@@ -192,10 +192,10 @@ export default function ScenarioPage() {
           <div className="shrink-0 border-b border-[var(--border-subtle)] px-6 py-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-[18px] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
+                <h2 className="text-[20px] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
                   Scenario Controls
                 </h2>
-                <p className="mt-2 text-[13px] leading-none text-[var(--text-muted)]">
+                <p className="mt-2 text-[14px] leading-none text-[var(--text-muted)]">
                   Adjust inputs · outputs update live
                 </p>
               </div>
@@ -305,7 +305,7 @@ export default function ScenarioPage() {
                 className="flex items-baseline gap-1.5"
               >
                 <span className="font-mono text-[13px] font-medium text-[var(--text-secondary)]">$</span>
-                <span className="font-mono text-[34px] font-bold leading-none nums-tabular tracking-tight text-[var(--text-primary)]">
+                <span className="font-mono text-[38px] font-bold leading-none nums-tabular tracking-tight text-[var(--text-primary)]">
                   {outputs.netEBITDA.toFixed(1)}
                 </span>
                 <span className="font-mono text-[14px] font-medium text-[var(--text-secondary)]">M</span>
@@ -360,7 +360,7 @@ export default function ScenarioPage() {
             RIGHT — Outputs & Visualizations (~68%)
         ══════════════════════════════════════════════════════════════ */}
         <main className="scroll-thin flex-1 overflow-y-auto bg-[var(--surface-base)]">
-          <div className="space-y-7 p-8">
+          <div className="space-y-8 p-10">
 
             {/* ── Scenario header ───────────────────────────────────── */}
             <div className="flex items-start justify-between gap-6">
@@ -370,10 +370,10 @@ export default function ScenarioPage() {
                   <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
                     {activePreset === 'custom' ? 'Custom Scenario' : 'Preset Scenario'}
                   </div>
-                  <h1 className="text-[28px] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
+                  <h1 className="text-[30px] font-semibold leading-none tracking-tight text-[var(--text-primary)]">
                     {currentPreset?.label ?? 'Custom Scenario'}
                   </h1>
-                  <p className="mt-2 text-[14px] text-[var(--text-muted)]">
+                  <p className="mt-2 text-[15px] text-[var(--text-muted)]">
                     {currentPreset?.description ?? 'Modified from base case assumptions'}
                   </p>
                 </div>
@@ -428,7 +428,7 @@ export default function ScenarioPage() {
                 { color: 'var(--chart-2)',          label: 'Hedge'    },
               ]}
             >
-              <WaterfallChart data={waterfallData} height={360} />
+              <WaterfallChart data={waterfallData} height={400} />
             </ChartPanel>
 
             {/* ── Comparison + Sensitivity — equal-width row ─────────── */}
@@ -449,7 +449,7 @@ export default function ScenarioPage() {
                   </span>
                 }
               >
-                <ComparisonChart data={comparisonData} height={300} />
+                <ComparisonChart data={comparisonData} height={340} />
               </ChartPanel>
 
               <ChartPanel
@@ -457,7 +457,7 @@ export default function ScenarioPage() {
                 subtitle="EBITDA impact as each factor moves ±30% from current"
                 legend={SENSITIVITY_CURVE_LEGEND}
               >
-                <SensitivityCurveChart inputs={inputs} height={300} />
+                <SensitivityCurveChart inputs={inputs} height={340} />
               </ChartPanel>
 
             </div>

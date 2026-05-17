@@ -142,7 +142,7 @@ function barFill(type: string): string {
 export default function OverviewPage() {
   return (
     <DashboardShell title="Overview" breadcrumb={['BAML Platform', 'Overview']}>
-      <div className="mx-auto max-w-[1600px] px-10 py-12 space-y-10">
+      <div className="mx-auto max-w-[1600px] px-12 py-14 space-y-12">
 
         {/* ── 1. Page header ───────────────────────────────────────── */}
         <motion.div
@@ -152,10 +152,10 @@ export default function OverviewPage() {
           className="flex items-end justify-between"
         >
           <div className="space-y-2">
-            <h1 className="text-[36px] font-semibold tracking-tight text-[var(--text-primary)] leading-none">
+            <h1 className="text-[40px] font-semibold tracking-tight text-[var(--text-primary)] leading-none">
               Portfolio Overview
             </h1>
-            <p className="text-[15px] text-[var(--text-muted)]">
+            <p className="text-[16px] text-[var(--text-muted)]">
               FY2026 Q2 · Consolidated · As of 14 May 2026
             </p>
           </div>
@@ -247,10 +247,10 @@ export default function OverviewPage() {
                     </span>
                   </div>
 
-                  <h2 className="mb-3 text-[26px] font-bold leading-tight tracking-tight text-[var(--accent-primary)]">
+                  <h2 className="mb-3 text-[28px] font-bold leading-tight tracking-tight text-[var(--accent-primary)]">
                     Scenario Analysis
                   </h2>
-                  <p className="mb-7 max-w-[520px] text-[14.5px] leading-relaxed text-[var(--text-secondary)]">
+                  <p className="mb-7 max-w-[520px] text-[15px] leading-relaxed text-[var(--text-secondary)]">
                     Model commodity shocks, FX rate movements, and hedge strategy changes
                     interactively. Watch EBITDA impact, waterfall decomposition, and
                     sensitivity analysis update in real time.
@@ -264,7 +264,7 @@ export default function OverviewPage() {
                       'Hedge Simulation',
                       'Stress Testing',
                     ].map((tag) => (
-                      <span key={tag} className="flex items-center gap-1.5 text-[12px] text-[var(--text-muted)]">
+                      <span key={tag} className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)]">
                         <span className="h-1 w-1 rounded-full bg-[var(--accent-muted)]" />
                         {tag}
                       </span>
@@ -297,12 +297,12 @@ export default function OverviewPage() {
           {/* Primary visualization — EBITDA by Scenario */}
           <div className="rounded-[var(--radius-card)] border border-[var(--border-base)] bg-[var(--surface-elevated)] overflow-hidden">
             {/* Panel header */}
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-7 py-5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-8 py-6">
               <div>
-                <p className="text-[13px] font-semibold text-[var(--text-primary)] leading-none">
+                <p className="text-[15px] font-semibold text-[var(--text-primary)] leading-none">
                   EBITDA by Scenario
                 </p>
-                <p className="mt-1 text-[11.5px] text-[var(--text-muted)]">
+                <p className="mt-1.5 text-[12.5px] text-[var(--text-muted)]">
                   Net EBITDA · FY2026 Q2 planning · all values $M
                 </p>
               </div>
@@ -313,17 +313,17 @@ export default function OverviewPage() {
                   { color: 'var(--status-negative)',   label: 'Stress' },
                   { color: '#9f1717',                  label: 'Severe' },
                 ].map(({ color, label }) => (
-                  <div key={label} className="flex items-center gap-1.5">
-                    <span className="h-[8px] w-[8px] rounded-sm" style={{ background: color }} />
-                    <span className="text-[10.5px] text-[var(--text-muted)]">{label}</span>
+                  <div key={label} className="flex items-center gap-2">
+                    <span className="h-[10px] w-[10px] rounded-sm" style={{ background: color }} />
+                    <span className="text-[12px] text-[var(--text-muted)]">{label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Chart */}
-            <div className="px-7 py-6">
-              <ResponsiveContainer width="100%" height={260}>
+            <div className="px-8 py-7">
+              <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={SCENARIOS}
                   barCategoryGap="36%"
@@ -338,7 +338,7 @@ export default function OverviewPage() {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-sans)' }}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'var(--font-sans)' }}
                     dy={8}
                   />
                   <YAxis
@@ -346,8 +346,8 @@ export default function OverviewPage() {
                     tickFormatter={(v) => `$${v}M`}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'var(--font-mono)' }}
-                    width={56}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                    width={60}
                   />
                   <Tooltip
                     content={<ScenarioTooltip />}
@@ -389,16 +389,16 @@ export default function OverviewPage() {
 
           {/* Market snapshot */}
           <div className="flex flex-col rounded-[var(--radius-card)] border border-[var(--border-base)] bg-[var(--surface-elevated)] overflow-hidden">
-            <div className="border-b border-[var(--border-subtle)] px-6 py-5">
-              <p className="text-[13px] font-semibold text-[var(--text-primary)] leading-none">
+            <div className="border-b border-[var(--border-subtle)] px-7 py-6">
+              <p className="text-[15px] font-semibold text-[var(--text-primary)] leading-none">
                 Market Snapshot
               </p>
-              <p className="mt-1 text-[11.5px] text-[var(--text-muted)]">
+              <p className="mt-1.5 text-[12.5px] text-[var(--text-muted)]">
                 Live · As of market close
               </p>
             </div>
 
-            <div className="flex flex-1 flex-col divide-y divide-[var(--border-subtle)] px-6">
+            <div className="flex flex-1 flex-col divide-y divide-[var(--border-subtle)] px-7">
               {MARKET_DATA.map((item) => {
                 const Icon =
                   item.trend === 'positive' ? ArrowUpRight :
@@ -410,13 +410,13 @@ export default function OverviewPage() {
                   'text-[var(--text-muted)]';
 
                 return (
-                  <div key={item.label} className="flex items-center justify-between py-[14px]">
-                    <span className="text-[13px] text-[var(--text-secondary)]">{item.label}</span>
+                  <div key={item.label} className="flex items-center justify-between py-[17px]">
+                    <span className="text-[14px] text-[var(--text-secondary)]">{item.label}</span>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-[14px] font-semibold nums-tabular text-[var(--text-primary)]">
+                      <span className="font-mono text-[15px] font-semibold nums-tabular text-[var(--text-primary)]">
                         {item.value}
                       </span>
-                      <span className={cn('flex items-center gap-0.5 font-mono text-[12px] font-medium nums-tabular', deltaColor)}>
+                      <span className={cn('flex items-center gap-0.5 font-mono text-[12.5px] font-medium nums-tabular', deltaColor)}>
                         <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} />
                         {item.delta}
                       </span>

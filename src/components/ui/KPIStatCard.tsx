@@ -73,31 +73,31 @@ const SIZE_CONFIG: Record<KPISize, {
   period: string;
 }> = {
   sm: {
-    card:   'min-h-[120px]',
-    pad:    'px-5 pt-6 pb-5',
-    label:  'text-[11px] tracking-[0.12em]',
-    value:  'text-[2rem]',        /* 32px */
-    unit:   'text-[1.125rem]',
-    delta:  'text-[11.5px]',
-    period: 'text-[11px]',
-  },
-  md: {
-    card:   'min-h-[158px]',
-    pad:    'px-6 pt-6 pb-5',
+    card:   'min-h-[140px]',
+    pad:    'px-6 pt-7 pb-6',
     label:  'text-[12px] tracking-[0.12em]',
-    value:  'text-[3rem]',        /* 48px */
-    unit:   'text-[1.375rem]',
-    delta:  'text-[12.5px]',
+    value:  'text-[2.25rem]',     /* 36px */
+    unit:   'text-[1.25rem]',
+    delta:  'text-[12px]',
     period: 'text-[11.5px]',
   },
-  lg: {
-    card:   'min-h-[172px]',
+  md: {
+    card:   'min-h-[180px]',
     pad:    'px-7 pt-7 pb-6',
-    label:  'text-[12px] tracking-[0.12em]',
+    label:  'text-[12.5px] tracking-[0.12em]',
     value:  'text-[3.25rem]',     /* 52px */
-    unit:   'text-[1.5625rem]',
+    unit:   'text-[1.5rem]',
     delta:  'text-[13px]',
     period: 'text-[12px]',
+  },
+  lg: {
+    card:   'min-h-[200px]',
+    pad:    'px-8 pt-8 pb-7',
+    label:  'text-[13px] tracking-[0.12em]',
+    value:  'text-[3.5rem]',      /* 56px */
+    unit:   'text-[1.75rem]',
+    delta:  'text-[14px]',
+    period: 'text-[13px]',
   },
 };
 

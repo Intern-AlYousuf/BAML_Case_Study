@@ -21,8 +21,8 @@ export function DashboardShell({ children, title, breadcrumb }: DashboardShellPr
       <Sidebar />
       <Topbar title={title} breadcrumb={breadcrumb} />
 
-      {/* Content — offset for 280px sidebar + 72px topbar */}
-      <main className="ml-[280px] pt-[72px] min-h-screen">
+      {/* Content — offset for 280px sidebar + 80px topbar */}
+      <main className="ml-[280px] pt-[80px] min-h-screen">
         <motion.div
           variants={contentVariants}
           initial="hidden"
